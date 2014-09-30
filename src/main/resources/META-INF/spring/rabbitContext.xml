@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/rabbit
+           http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <rabbit:connection-factory id="connectionFactory" host="${rabbit.host}" port="${rabbit.port}"
+                               username="${rabbit.username}" password="${rabbit.password}"/>
+
+    <rabbit:template id="rabbitTemplate" connection-factory="connectionFactory"/>
+    <rabbit:admin id="rabbitAdmin" connection-factory="connectionFactory"/>
+
+
+
+    <rabbit:queue id="queueOne" name="${queue.one.queue}"/>
+    <rabbit:queue id="queueTwo" name="${queue.two.queue}"/>
+
+    <rabbit:listener-container connection-factory="connectionFactory">
+        <rabbit:listener id="typeOneListener" ref="typeOneListener" method="handleMessage" queues="queueOne"/>
+        <rabbit:listener id="typeTwoListener" ref="typeTwoListener" method="handleMessage" queues="queueTwo"/>
+    </rabbit:listener-container>
+
+
+    <rabbit:topic-exchange id="my.topic" name="${my.topic}">
+                <rabbit:bindings>
+                    <rabbit:binding pattern="${queue.one.queue}" queue="queueOne"/>
+                    <rabbit:binding pattern="${queue.two.queue}" queue="queueTwo"/>
+                </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+
+</beans>
